@@ -41,7 +41,6 @@ boostRule = do
                       "coroutine",
                       "fiber",
                       "graph",
-                      "json",
                       "locale",
                       "log",
                       "math",
