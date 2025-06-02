@@ -1,6 +1,7 @@
 name: CI
 
 on:
+  workflow_dispatch:
   push:
     branches: [master]
   pull_request:
@@ -67,7 +68,6 @@ jobs:
           ./build-cabal -j everything
 
       - name: Pack prebuilt libraries
-        if: github.event_name == 'pull_request'
         run: |
           cd build
           mkdir prebuilt
@@ -78,16 +78,6 @@ jobs:
           tar --zstd -cf prebuilt.tar.zst prebuilt/
 
       - name: Upload prebuilt to artifact
-        if: github.event_name == 'pull_request'
         uses: actions/upload-artifact@v4
         with:
           path: build/prebuilt.tar.zst
-
-      - name: Fetch fcitx5-android/prebuilt
-        if: github.event_name == 'push' && github.ref == 'refs/heads/master'
-        uses: actions/checkout@v3
-        with:
-          path: prebuilt
-          repository: fcitx5-android/prebuilt
-          fetch-depth: 0
-          persist-credentials: false
