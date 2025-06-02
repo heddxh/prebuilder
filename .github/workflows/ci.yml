@@ -1,8 +1,9 @@
 name: CI
 
 on:
+  workflow_dispatch:
   push:
-    branches: [master]
+    branches: [mozc]
   pull_request:
 
 jobs:
@@ -49,6 +50,11 @@ jobs:
         uses: android-actions/setup-android@v3
         with:
           packages: "ndk;${{ env.NDK_VERSION }} cmake;${{ env.CMAKE_VERSION }}"
+          
+      - name: Setup tmate session
+        uses: mxschmitt/action-tmate@v3
+        with:
+          detached: true
 
       - name: Build mozc_data.inc
         run: |
@@ -64,10 +70,9 @@ jobs:
         run: |
           # use archlinux's dynamic only ghc
           cabal configure --disable-library-vanilla --enable-shared --enable-executable-dynamic --ghc-options=-dynamic
-          ./build-cabal -j everything
+          ./build-cabal -j libmozc
 
       - name: Pack prebuilt libraries
-        if: github.event_name == 'pull_request'
         run: |
           cd build
           mkdir prebuilt
@@ -78,16 +83,6 @@ jobs:
           tar --zstd -cf prebuilt.tar.zst prebuilt/
 
       - name: Upload prebuilt to artifact
-        if: github.event_name == 'pull_request'
         uses: actions/upload-artifact@v4
         with:
           path: build/prebuilt.tar.zst
-
-      - name: Fetch fcitx5-android/prebuilt
-        if: github.event_name == 'push' && github.ref == 'refs/heads/master'
-        uses: actions/checkout@v3
-        with:
-          path: prebuilt
-          repository: fcitx5-android/prebuilt
-          fetch-depth: 0
-          persist-credentials: false
