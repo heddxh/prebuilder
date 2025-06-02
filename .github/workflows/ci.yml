@@ -65,7 +65,7 @@ jobs:
         run: |
           # use archlinux's dynamic only ghc
           cabal configure --disable-library-vanilla --enable-shared --enable-executable-dynamic --ghc-options=-dynamic
-          ./build-cabal -j everything
+          ./build-cabal -j libmozc
 
       - name: Pack prebuilt libraries
         run: |
